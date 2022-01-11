@@ -1,4 +1,4 @@
-function scout = aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,pams)
+function scout = aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,pams)
 a=pams(1);
 K=pams(2);
 thet=pams(3);
@@ -29,10 +29,14 @@ if sum(isnan(pops)>0)
     disp((((pops(6*numFields+(1:numFields))+pops(7*numFields+(1:numFields)))/H)>1)');
     return
 end
-
-
-infCuttings=0;
-expCuttings=1;
+ 
+if is_discrim
+    infCuttings=0;
+    expCuttings=1;
+else
+    infCuttings=1;
+    expCuttings=1;
+end
 
 % extract field specific parts (wildtype vector)
 vecS_N=pops(1:numFields);                          % nymphs on S plant
@@ -133,8 +137,12 @@ scout(4*numFields+(1:numFields))=dN*vecE_N-(thet+muu)*vecE+(localInsMovemt+migra
 % adult density on infected plants
 scout(5*numFields+(1:numFields))=dN*vecI_N-(thet+muu)*vecI+(localInsMovemt+migratInsMovemt_byField').*probLandI.*disperseOnI';
 
-% density pathogen exposed plants                                                                     
-scout(6*numFields+(1:numFields))=expCuttings*(1-propCleanSeed)*((1-cutFromWithin)*(inFlowEXP_byField)+cutFromWithin*plExp).*(plE*H*plExp+(plD+plE)*H*plInc)+Pinoc*(vecSinf+vecSinf_2)*H.*(1-plInc-plExp)-plE*H*plExp-icbn*H*plExp;  
+% density pathogen exposed plants   
+if is_discrim
+scout(6*numFields+(1:numFields))=expCuttings*(1-propCleanSeed)*((1-cutFromWithin)*(inFlowEXP_byField./(H-inFlowINF_byField))+cutFromWithin*(plExp./(H-plInc))).*(plE*H*plExp+(plD+plE)*H*plInc)+Pinoc*(vecSinf+vecSinf_2)*H.*(1-plInc-plExp)-plE*H*plExp-icbn*H*plExp;  
+else
+scout(6*numFields+(1:numFields))=expCuttings*(1-propCleanSeed)*((1-cutFromWithin)*(inFlowEXP_byField)+cutFromWithin*plExp).*(plE*H*plExp+(plD+plE)*H*plInc)+Pinoc*(vecSinf+vecSinf_2)*H.*(1-plInc-plExp)-plE*H*plExp-icbn*H*plExp;      
+end
 % density pathogen infected plants      
 scout(7*numFields+(1:numFields))=infCuttings*(1-propCleanSeed)*((1-cutFromWithin)*(inFlowINF_byField)+cutFromWithin*plInc).*(plE*H*plExp+(plD+plE)*H*plInc)+icbn*H*plExp-(plD+plE)*H*plInc;
 

@@ -43,11 +43,19 @@ tMax=10000;      % epidemic run duration for solver (note, upr limit as there is
 propCleanSeed=0; % proportion of cuttings coming from completely virus-free source
 cutFromWithin=1; % proportion of cuttings coming from within focal field
 range=numFieldsIn-1; % number of fields for averaging cuttings infection pressure (if cuttings originate outside focal field)
+is_discrim=1; % if growers are discriminating then cuttings might be exposed but not infected; otherwise exposed and infected
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% NOTE 1, to toggle between Fig 2 main text setup and SI2 cases:
+% if propCleanSeed=1 then main text Fig 2 configuration regardless of cutFromWithin and range
+% if propCleanSeed=0 and cutFromWithin=1; then SI2 case 1 and case 3
+% if propCleanSeed=0 and cutFromWithin=0; and range=numFieldsIn-1;  then SI2 case 2 and case 4
 
-
-
+% NOTE 2, to toggle between SI2 cases:
+% 'aggreg2_wCuttings.m'
+% is_discrim=1;     <--- discriminate cuttings (case 1 and 2 SI2)
+% is_discrim=0;     <--- indiscriminate cuttings (case 3 and 4 SI2)
+% above settings don't do anything when propCleanSeed=1 (i.e. as for main text results)
 
 %%% SCENARIO 1 %%%
 % additional scenario specific parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MODIFYING PATHOGEN %%%%%%%%%%%%%
@@ -62,7 +70,7 @@ sp2On=0;   % note SP2 switch must be on for invasive wf scenario...
 %%%%%% RUN first TO insect STEADY-STATE (no pathogen!) %%%%%%%%%%%%%%%%%%%%
 invIndex=1; % field location of invader
 initVals=[zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) K*(1-(muu/a))*ones(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn)];
-[tnewSS,ynewSS] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,[lh_pams eps1 epsSP2 epslscape]),[0 tMaxSS],initVals);
+[tnewSS,ynewSS] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,[lh_pams eps1 epsSP2 epslscape]),[0 tMaxSS],initVals);
 disp('Scenario 1 ss run complete');
 nymphsSS=ynewSS(:,0*numFieldsIn+(1:numFieldsIn));
 insectsSS=ynewSS(:,3*numFieldsIn+(1:numFieldsIn));
@@ -86,7 +94,7 @@ initValsFromSS(3*numFieldsIn+invIndex)=initValsFromSS(3*numFieldsIn+invIndex)-sp
 
 %%%%%% RUN second FOR EPIDEMIC WAVE
 options = odeset('Events',@midScapeEvents);   % this option sets the condition for stopping the solver (i.e. when epidemic wave reaches a point on landscape)
-[tnew,ynew,te1,ye,ie] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,[lh_pams eps1 epsSP2 epslscape]),[0 tMax],initValsFromSS,options);
+[tnew,ynew,te1,ye,ie] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,[lh_pams eps1 epsSP2 epslscape]),[0 tMax],initValsFromSS,options);
 disp('Scenario 1 epidemic run complete');
 infVec=ynew(:,7*numFieldsIn+(1:numFieldsIn));
 exposArrayF=ye(6*numFieldsIn+(1:numFieldsIn/2));
@@ -130,12 +138,13 @@ set(gca,'ytick',0:10:200,'xtick',xticmarks,'xticklabel',[]);
 ylabel('Wave-profile (Y/(I+1))');
 xlabel('Field position');
 yyaxis right
-p3=plot(1:(numFieldsIn/2),incArrayF,'color',[0.68 0.85 0.9]);
+p3=plot(1:(numFieldsIn/2),incArrayF,'color',[0 153 212]/255); %[0.68 0.85 0.9]
 ylim([0 1]);
-set(gca,'ytick',[],'xtick',xticmarks,'xticklabel',[]);
+set(gca,'ytick',0:0.2:1,'xtick',xticmarks,'xticklabel',[]);
 ax1=gca;
 set(get(get(p3,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
 ax1.YAxis(1).Color = 'k';
+ax1.YAxis(2).Color = [0 153 212]/255;
 
 subplot(4,2,4)
 yyaxis left
@@ -167,7 +176,7 @@ sp2On=1;   % note SP2 switch must be on for invasive wf scenario... i.e. SP2 see
 %%%%%% RUN first TO insect STEADY-STATE (no pathogen!) %%%%%%%%%%%%%%%%%%%%
 invIndex=1; % field location of invader
 initVals=[zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) K*(1-(muu/a))*ones(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn)];
-[tnewSS,ynewSS] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,[lh_pams eps1 epsSP2 epslscape]),[0 tMaxSS],initVals);
+[tnewSS,ynewSS] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,[lh_pams eps1 epsSP2 epslscape]),[0 tMaxSS],initVals);
 disp('Scenario 2 ss run complete');
 nymphsSS=ynewSS(:,0*numFieldsIn+(1:numFieldsIn));
 insectsSS=ynewSS(:,3*numFieldsIn+(1:numFieldsIn));
@@ -189,7 +198,7 @@ initValsFromSS(7*numFieldsIn+invIndex)=1;    % <- disease invasion
 initValsFromSS(14*numFieldsIn+invIndex)=sp2On*1; % <- insect invasion (susceptible)
 initValsFromSS(3*numFieldsIn+invIndex)=initValsFromSS(3*numFieldsIn+invIndex)-sp2On*1; % <- simply reflecting invasion in loss of indiv. from WT 
 options = odeset('Events',@midScapeEvents);    % this option sets the condition for stopping the solver (i.e. when epidemic wave reaches a point on landscape)
-[tnew,ynew,te2,ye,ie] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,[lh_pams eps1 epsSP2 epslscape]),[0 tMax],initValsFromSS,options);
+[tnew,ynew,te2,ye,ie] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,[lh_pams eps1 epsSP2 epslscape]),[0 tMax],initValsFromSS,options);
 disp('Scenario 2 epidemic run complete');
 infArrayF=ye(7*numFieldsIn+(1:numFieldsIn/2));
 exposArrayF=ye(6*numFieldsIn+(1:numFieldsIn/2));
@@ -228,13 +237,14 @@ set(gca,'ytick',0:20:200,'xtick',xticmarks,'xticklabel',[]);
 ylabel('Wave-profile (Y/(I+1))')
 xlabel('Field position')
 yyaxis right
-p3=plot(1:(numFieldsIn/2),incArrayF,'color',[0.68 0.85 0.9]);
-set(gca,'ytick',[],'xtick',xticmarks,'xticklabel',[]);
+p3=plot(1:(numFieldsIn/2),incArrayF,'color',[0 153 212]/255);
+set(gca,'ytick',0:0.2:1,'xtick',xticmarks,'xticklabel',[]);
 xlim([20 55])
 ylim([0 1])
 ax2=gca;
 set(get(get(p3,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
 ax2.YAxis(1).Color = 'k';
+ax2.YAxis(2).Color = [0 153 212]/255;
 
 subplot(4,2,6)
 yyaxis left
@@ -272,7 +282,7 @@ sp2On=0;  % note SP2 switch must be on for invasive wf scenario...
 %%%%%% RUN first TO insect STEADY-STATE (no pathogen!) %%%%%%%%%%%%%%%%%%%%
 invIndex=1; % field location of invader
 initVals=[zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) K*(1-(muu/a))*ones(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn) zeros(1,numFieldsIn)];
-[tnewSS,ynewSS] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,[lh_pams eps1 epsSP2 epslscape]),[0 tMaxSS],initVals);
+[tnewSS,ynewSS] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,[lh_pams eps1 epsSP2 epslscape]),[0 tMaxSS],initVals);
 disp('Scenario 3 ss run complete');
 nymphsSS=ynewSS(:,0*numFieldsIn+(1:numFieldsIn));
 insectsSS=ynewSS(:,3*numFieldsIn+(1:numFieldsIn));
@@ -294,7 +304,7 @@ initValsFromSS(7*numFieldsIn+invIndex)=1;    % <- disease invasion
 initValsFromSS(14*numFieldsIn+invIndex)=sp2On*1; % <- insect invasion (susceptible)
 initValsFromSS(3*numFieldsIn+invIndex)=initValsFromSS(3*numFieldsIn+invIndex)-sp2On*1; % <- simply reflecting invasion in loss of indiv. from WT 
 options = odeset('Events',@midScapeEvents);   % this option sets the condition for stopping the solver (i.e. when epidemic wave reaches a point on landscape)
-[tnew,ynew,te3,ye,ie] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,[lh_pams eps1 epsSP2 epslscape]),[0 tMax],initValsFromSS,options);
+[tnew,ynew,te3,ye,ie] = ode23(@(t,pops)aggreg2_wCuttings(t,pops,range,propCleanSeed,cutFromWithin,is_discrim,[lh_pams eps1 epsSP2 epslscape]),[0 tMax],initValsFromSS,options);
 disp('Scenario 3 epidemic run complete');
 infArrayF=ye(7*numFieldsIn+(1:numFieldsIn/2));
 exposArrayF=ye(6*numFieldsIn+(1:numFieldsIn/2));
@@ -334,13 +344,14 @@ set(gca,'ytick',0:20:200,'xtick',xticmarks);
 ylabel('Wave-profile (Y/(I+1))')
 xlabel('Field position')
 yyaxis right
-p3=plot(1:(numFieldsIn/2),incArrayF,'color',[0.68 0.85 0.9]);
-set(gca,'ytick',[],'xtick',xticmarks);
+p3=plot(1:(numFieldsIn/2),incArrayF,'color',[0 153 212]/255);
+set(gca,'ytick',0:0.2:1,'xtick',xticmarks);
 xlim([20 55])
 ylim([0 1])
 ax3=gca;
 set(get(get(p3,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
 ax3.YAxis(1).Color = 'k';
+ax3.YAxis(2).Color = [0 153 212]/255;
 
 subplot(4,2,8)
 yyaxis left
@@ -378,9 +389,10 @@ set([ax0 ax0b ax1 ax2 ax3 ax1b ax2b ax3b], ...
     'YGrid'       , 'off'      , ...
     'XColor'      , [.3 .3 .3], ...
     'FontSize', 12, ...
-    'YColor'      , [.3 .3 .3], ...
     'FontName', 'Times New Roman', ...
-    'LineWidth'   , 0.2         );
+    'LineWidth'   , 0.2         );    %'YColor'      , [.3 .3 .3], ...
 h=gcf;
 h.Renderer='Painters';
 orient(h,'landscape')
+
+%saveas(gcf,'myfigure1.pdf')
