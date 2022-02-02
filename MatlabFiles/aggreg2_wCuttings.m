@@ -117,7 +117,7 @@ migratINFMovemt_byField_2(2:end-1)=0.5*migratINFMovemt_2(1:(numFields-2))+0.5*mi
 migratINFMovemt_byField_2(1)=0.5*migratINFMovemt_2(numFields)+ 0.5*migratINFMovemt_2(2);
 migratINFMovemt_byField_2(numFields)=0.5*migratINFMovemt_2(numFields-1)+ 0.5*migratINFMovemt_2(1);
 
-%%%% MAY NEED TO ALSO WEIGHT THEM (there is some evidence that if the replacement rate of healthy plants is like monthly widespread cuttings pushes back the min)
+%%%% 
 inFlowEXP_byField=cuttingsScope2(plExp,range);   % 'discrimate' cutting is just inFlowEXP_byField
 inFlowINF_byField=cuttingsScope2(plInc,range);   % 'indiscrimate' cutting is both inFlowEXP_byField and inFlowINF_byField (see eq.s)
     
