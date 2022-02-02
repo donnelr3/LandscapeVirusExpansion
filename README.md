@@ -1,6 +1,6 @@
 # LandscapeVirusExpansion
 "The role of pathogen mediated insect superabundance in the east-African emergence of a plant virus" 
-Donnelly and Gilligan 2021
+Donnelly and Gilligan 2022
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
