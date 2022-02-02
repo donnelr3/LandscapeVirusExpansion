@@ -56,6 +56,7 @@ ax2=gca;
 
 
 %%%%%%%%% with fits %%%%%%%%%%%%%%%%%%
+% For reference only - fitting a logistic curve to the incidence data points
 inc962=100-inc96;
 x096=[1 30 100 5];
 
