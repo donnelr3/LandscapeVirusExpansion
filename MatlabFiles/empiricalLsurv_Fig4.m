@@ -63,6 +63,7 @@ Fxx=1:8;
 
 
 %%%%%%%%% with fits %%%%%%%%%%%%%%%%%%
+% For reference only, fitting a logistic curve to the incidence data points
 incCT=100-mnIncC;
 incET=100-mnIncE;
 x0=[1 100 50 90 10];
